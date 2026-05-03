@@ -44,9 +44,13 @@ async def get_pm2_status_api(request: Request):
     return PM2Service.get_processes()
 
 @router.websocket("/ws/logs/{name}")
-async def websocket_endpoint(websocket: WebSocket, name: str, request: Request):
-    if not AuthService.is_authenticated(request):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+async def websocket_endpoint(websocket: WebSocket, name: str):
+    if not websocket.session.get("user"):
+        await websocket.accept()
+        await websocket.send_text("Error: Unauthorized access.")
+        await websocket.close(code=1008)  # Policy Violation
+        return
+
     await websocket.accept()
     
     process = await asyncio.create_subprocess_exec(
@@ -54,19 +58,24 @@ async def websocket_endpoint(websocket: WebSocket, name: str, request: Request):
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.STDOUT
     )
+
     try:
         while True:
             line = await process.stdout.readline()
             if not line:
                 break
+            
             await websocket.send_text(line.decode().strip())
+            
     except WebSocketDisconnect:
-        process.terminate()
+        if process.returncode is None:
+            process.terminate()
     except Exception as e:
-        print(f"Log Streaming Error: {e}")
+        print(f"Log Streaming Error for {name}: {e}")
     finally:
         if process.returncode is None:
             process.terminate()
+            await process.wait()
 
 @router.post("/toggle-watch/{name}")
 async def toggle_watch(request: Request, name: str):
