@@ -36,6 +36,7 @@ cp .env.example .env
 ADMIN_USER=admin
 ADMIN_PASS=admin1234
 SECRET_KEY=your_random_secret_key_here
+PORT=8000
 ```
 
 ### 4. 대시보드 실행
