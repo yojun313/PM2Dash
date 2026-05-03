@@ -6,7 +6,7 @@ from app.routes import pm2_routes, auth_routes
 
 load_dotenv()
 
-app = FastAPI(title="PM2DASH")
+app = FastAPI(title="PM2Dash")
 
 app.add_middleware(
     SessionMiddleware, 

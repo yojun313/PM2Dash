@@ -1,6 +1,10 @@
-# PM2DASH
+# PM2Dash
 
 FastAPI 기반의 실시간 PM2 프로세스 모니터링 및 관리 대시보드입니다. 웹 브라우저에서 서버의 프로세스 상태를 한눈에 파악하고 제어할 수 있습니다.
+
+<p align="center">
+  <img src="./images/readme.png" width="600">
+</p>
 
 ## 주요 기능
 * 실시간 모니터링: CPU 사용량, 메모리 점유율, 업타임 실시간 업데이트
@@ -42,7 +46,7 @@ python3 run.py
 
 ## 프로젝트 구조
 ```text
-PM2DASH/
+PM2Dash/
 ├── app/
 │   ├── routes/          # 페이지 라우팅 (pm2_routes.py, auth_routes.py)
 │   ├── services/        # 비즈니스 로직 (pm2_service.py, auth_service.py)
