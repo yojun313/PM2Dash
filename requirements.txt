@@ -3,3 +3,4 @@ fastapi
 requests
 jinja2
 python-multipart
+websockets

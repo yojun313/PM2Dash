@@ -20,7 +20,7 @@ async def pm2_manager_page(request: Request):
 
 @router.post("/control/{action}/{name}")
 async def control_process(action: str, name: str):
-    if action not in ["restart", "stop", "start"]:
+    if action not in ["restart", "stop", "start", "delete"]:
         raise HTTPException(status_code=400, detail="Invalid action")
     
     success = PM2Service.run_command(action, name)
