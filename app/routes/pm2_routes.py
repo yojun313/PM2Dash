@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Request, Depends, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Request, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.templating import Jinja2Templates
 from app.services.pm2_service import PM2Service
+from fastapi.responses import RedirectResponse
+from app.services.auth_service import AuthService
 import asyncio
 
 router = APIRouter(prefix="/process", tags=["process"])
@@ -8,6 +10,9 @@ templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/")
 async def pm2_manager_page(request: Request):
+    if not AuthService.is_authenticated(request):
+        return RedirectResponse(url="/login")
+    
     processes = PM2Service.get_processes()
     return templates.TemplateResponse(
         request=request, 
@@ -19,7 +24,10 @@ async def pm2_manager_page(request: Request):
     )
 
 @router.post("/control/{action}/{name}")
-async def control_process(action: str, name: str):
+async def control_process(request: Request, action: str, name: str):
+    if not AuthService.is_authenticated(request):
+        return RedirectResponse(url="/login")
+
     if action not in ["restart", "stop", "start", "delete"]:
         raise HTTPException(status_code=400, detail="Invalid action")
     
@@ -30,11 +38,15 @@ async def control_process(action: str, name: str):
     return {"status": "success"}
 
 @router.get("/status")
-async def get_pm2_status_api():
+async def get_pm2_status_api(request: Request):
+    if not AuthService.is_authenticated(request):
+        raise HTTPException(status_code=401, detail="Unauthorized")
     return PM2Service.get_processes()
 
 @router.websocket("/ws/logs/{name}")
-async def websocket_endpoint(websocket: WebSocket, name: str):
+async def websocket_endpoint(websocket: WebSocket, name: str, request: Request):
+    if not AuthService.is_authenticated(request):
+        raise HTTPException(status_code=401, detail="Unauthorized")
     await websocket.accept()
     
     process = await asyncio.create_subprocess_exec(
@@ -57,7 +69,10 @@ async def websocket_endpoint(websocket: WebSocket, name: str):
             process.terminate()
 
 @router.post("/toggle-watch/{name}")
-async def toggle_watch(name: str):
+async def toggle_watch(request: Request, name: str):
+    if not AuthService.is_authenticated(request):
+        return RedirectResponse(url="/login")
+
     processes = PM2Service.get_processes()
     target_proc = next((p for p in processes if p['name'] == name), None)
     

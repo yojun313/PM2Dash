@@ -1,8 +1,18 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import RedirectResponse
-from starlette.exceptions import HTTPException as StarletteHTTPException
-from fastapi.exception_handlers import http_exception_handler
-from app.routes import pm2_routes
+import os
+from fastapi import FastAPI
+from starlette.middleware.sessions import SessionMiddleware
+from dotenv import load_dotenv
+from app.routes import pm2_routes, auth_routes
 
-app = FastAPI(title="PM2 Dashboard")
+load_dotenv()
+
+app = FastAPI(title="PM2DASH")
+
+app.add_middleware(
+    SessionMiddleware, 
+    secret_key=os.getenv("SECRET_KEY", "your-secret-key"),
+    max_age=3600 * 24 # 24시간 유지
+)
+
+app.include_router(auth_routes.router)
 app.include_router(pm2_routes.router)
