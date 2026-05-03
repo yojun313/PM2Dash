@@ -9,7 +9,7 @@ templates = Jinja2Templates(directory="app/templates")
 @router.get("/login")
 async def login_page(request: Request):
     if AuthService.is_authenticated(request):
-        return RedirectResponse(url="/process")
+        return RedirectResponse(url="/")
     return templates.TemplateResponse(
         request=request, 
         name="login.html", 
@@ -20,7 +20,7 @@ async def login_page(request: Request):
 async def login(request: Request, username: str = Form(...), password: str = Form(...)):
     if AuthService.authenticate(username, password):
         request.session["user"] = username
-        return RedirectResponse(url="/process", status_code=303)
+        return RedirectResponse(url="/", status_code=303)
     
     return templates.TemplateResponse(
         request=request,

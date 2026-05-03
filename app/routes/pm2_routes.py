@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from app.services.auth_service import AuthService
 import asyncio
 
-router = APIRouter(prefix="/process", tags=["process"])
+router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/")
@@ -90,3 +90,15 @@ async def toggle_watch(request: Request, name: str):
         raise HTTPException(status_code=500, detail="Failed to toggle watch mode")
         
     return {"status": "success", "watch": not current_watch}
+
+@router.get("/startup-status")
+async def get_startup_status():
+    status = PM2Service.get_startup_status()
+    return {"is_registered": status}
+
+@router.post("/save")
+async def save_pm2_list():
+    success = PM2Service.save_processes()
+    if not success:
+        raise HTTPException(status_code=500, detail="Save failed")
+    return {"status": "success"}

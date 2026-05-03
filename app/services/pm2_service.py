@@ -36,3 +36,22 @@ class PM2Service:
         except Exception as e:
             print(f"General Error: {e}")
             return False
+    
+    @staticmethod
+    def save_processes():
+        pm2_path = shutil.which("pm2")
+        try:
+            subprocess.run(f"{pm2_path} save", shell=True, check=True)
+            return True
+        except:
+            return False
+
+    @staticmethod
+    def get_startup_status():
+        """PM2가 OS 재부팅 시 자동 실행되도록 설정되어 있는지 확인합니다."""
+        pm2_path = shutil.which("pm2")
+        try:
+            result = subprocess.run(f"{pm2_path} startup", shell=True, capture_output=True, text=True)
+            return "already configured" in result.stdout.lower() or "sudo" in result.stdout.lower()
+        except:
+            return False
