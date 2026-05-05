@@ -1,0 +1,16 @@
+[project]
+name = "pm2dash"
+version = "0.1.0"
+description = "Web Dashboard for PM2 Processes"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.136.1",
+    "itsdangerous>=2.2.0",
+    "jinja2>=3.1.6",
+    "python-dotenv>=1.2.2",
+    "python-multipart>=0.0.27",
+    "requests>=2.33.1",
+    "uvicorn>=0.46.0",
+    "websockets>=16.0",
+]
